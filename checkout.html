@@ -1,136 +1,167 @@
 <!DOCTYPE html>
-<html lang="th"> <!-- ระบุว่าเป็น HTML5 และใช้ภาษาไทย -->
+<html lang="th">  <!-- ระบุว่าเป็น HTML5 และใช้ภาษาไทย -->
 <head>
-  <meta charset="UTF-8"/> <!-- กำหนดการเข้ารหัสเป็น UTF-8 -->
-  <meta name="viewport" content="width=device-width, initial-scale=1"/> <!-- รองรับมือถือ -->
-  <title>เช็คเอาต์ – WorkPing Time</title> <!-- ชื่อหน้าในแท็บเบราว์เซอร์ -->
+  <meta charset="UTF-8"/>  <!-- กำหนดการเข้ารหัส UTF-8 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>  <!-- รองรับ responsive -->
+  <title>เช็คเอาต์ – WorkPing Time</title>  <!-- ชื่อหน้าในแท็บ -->
+
   <style>
-    /* รีเซ็ต margin/padding ของทุกองค์ประกอบ */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    /* ให้ html/body ครอบคลุมเต็มหน้าจอ และตั้งค่าพื้นฐาน */
+    /* ------------ Reset & Base ------------ */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
     html, body {
-      width: 100%; height: 100%;
-      font-family: 'Sarabun', sans-serif; /* ฟอนต์ Sarabun */
-      background: url('background.png') center/cover no-repeat; /* พื้นหลังแบบ cover */
-      color: #fff; text-align: center; /* ข้อความสีขาว จัดกึ่งกลาง */
+      width: 100%;
+      height: 100%;
+      font-family: 'Sarabun', sans-serif;
+      background: url('background.png') center/cover no-repeat;
+      color: #fff;
+      text-align: center;
     }
+
+    /* ------------ Header ------------ */
     header {
-      display: flex; justify-content: center; align-items: center; padding: 20px 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px 0;
     }
-    header img { max-width: 160px; height: auto; } /* ขนาดโลโก้ WorkPing Time */
+    header img {
+      max-width: 160px;
+      height: auto;
+    }
+
+    /* ------------ Form ------------ */
     .form-container {
-      width: 90%; max-width: 400px; margin: 20px auto; text-align: left;
+      width: 90%;
+      max-width: 400px;
+      margin: 20px auto;
+      text-align: left;
     }
     .form-container label {
-      display: block; font-size: 18px; margin: 10px 0 5px;
+      display: block;
+      font-size: 18px;
+      margin: 10px 0 5px;
     }
     .form-container input[type="text"],
     .form-container input[type="file"] {
-      width: 100%; padding: 12px; margin-bottom: 15px;
-      border: 3px solid #fff; border-radius: 6px;
-      background: rgba(255,255,255,0.1); color: #fff; font-size: 16px;
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 3px solid #fff;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      font-size: 16px;
     }
     .form-container button {
-      width: 100%; padding: 15px; border: none; border-radius: 8px;
-      background: #ff8c00; color: #fff; font-size: 20px; font-weight: bold;
-      cursor: pointer; transition: opacity .2s;
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 8px;
+      background: #ff8c00;
+      color: #fff;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: opacity .2s;
     }
-    .form-container button:hover { opacity: .8; }
-    #position { font-size: 16px; margin-bottom: 20px; }
+    .form-container button:hover {
+      opacity: .8;
+    }
+    #position {
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
   </style>
 </head>
+
 <body>
+  <!-- Header แสดงโลโก้ -->
   <header>
-    <img src="Logo WorkPingTime.png" alt="WorkPing Time">  <!-- โลโก้ WorkPing Time -->
+    <img src="Logo WorkPingTime.png" alt="WorkPing Time Logo">
   </header>
 
+  <!-- Form เช็คเอาต์ -->
   <div class="form-container">
     <label for="name">กรอกชื่อ :</label> <!-- ป้ายกรอกชื่อ -->
     <input type="text" id="name" placeholder="ชื่อของคุณ" required> <!-- ช่องกรอกชื่อ -->
 
-    <label for="photo">ถ่ายรูปออก​งาน :</label> <!-- ป้ายถ่ายรูปเช็คเอาต์ -->
+    <label for="photo">ถ่ายรูปออก​งาน :</label> <!-- ป้ายถ่ายรูป -->
     <input type="file" id="photo" accept="image/*" capture="environment" required> <!-- ช่องอัพโหลดรูป -->
 
     <p id="position">ตำแหน่ง: --, --</p> <!-- แสดงตำแหน่ง GPS -->
-    <button onclick="submitCheckout()">ออก​งาน</button> <!-- ปุ่มส่งข้อมูลเช็คเอาต์ -->
+    <button onclick="submitCheckout()">ออก​งาน</button> <!-- ปุ่มเช็คเอาต์ -->
   </div>
 
   <script>
-    // กำหนดรหัสร้านค้า (shopId) เพื่อแยกข้อมูลใน Hookdeck
-    const SHOP_ID = 'Smart';
-
-    // URL สำหรับส่งข้อมูลเช็คเอาต์ไปยัง Hookdeck/Webhook endpoint
+    // กำหนด ShopID สำหรับ query string
+    const SHOP_ID     = 'Smart';
+    // URL ของ Hookdeck/Webhook endpoint
     const WEBHOOK_URL = 'https://hkdk.events/6t72sw80kbjrm2';
 
-    // ขอสิทธิ์เข้าถึงตำแหน่งผู้ใช้ และอัพเดตลงใน <p id="position">
+    // ขอสิทธิ์เข้าถึง GPS และแสดงตำแหน่ง
     navigator.geolocation.getCurrentPosition(pos => {
-      // ตัดทศนิยมละติจูด 6 ตำแหน่ง
       const lat = pos.coords.latitude.toFixed(6);
-      // ตัดทศนิยมลองจิจูด 6 ตำแหน่ง
       const lng = pos.coords.longitude.toFixed(6);
-      // แสดงพิกัดบนหน้าจอ
       document.getElementById('position').innerText = `ตำแหน่ง: ${lat}, ${lng}`;
     });
 
-    // ฟังก์ชันส่งข้อมูลเช็คเอาต์เมื่อกดปุ่ม
+    // ฟังก์ชันส่งข้อมูลเช็คเอาต์
     function submitCheckout() {
-      // ดึงค่าช่องกรอกชื่อ
-      const nameInput = document.getElementById('name');
-      // ดึงไฟล์รูปจาก input
-      const file = document.getElementById('photo').files[0];
-      // อ่านตำแหน่งจาก <p id="position"> แล้วแยกออกเป็น lat และ lng
-      const [ , latRaw, lngRaw ] = document.getElementById('position').innerText.split(' ');
-      const lat = latRaw.replace(',', '');
-      const lng = lngRaw;
+      const nameInput = document.getElementById('name');      // ดึง input ชื่อ
+      const file      = document.getElementById('photo').files[0]; // ดึงไฟล์รูป
+      const posText   = document.getElementById('position').innerText;
+      const [, latRaw, lngRaw] = posText.split(' ');
 
-      // ตรวจสอบว่าชื่อและรูปถูกกรอกครบ
+      const lat  = latRaw.replace(',', ''); // ลบ comma
+      const lng  = lngRaw;
+      const time = new Date().toLocaleTimeString(); // ใช้เวลาปัจจุบัน
+
+      // ตรวจสอบให้กรอกครบ
       if (!nameInput.value.trim() || !file) {
         alert('กรุณากรอกชื่อและถ่ายรูปก่อนออกงาน');
-        return; // หยุดถ้ายังไม่ครบ
+        return;
       }
 
       // อ่านไฟล์รูปเป็น Base64
       const reader = new FileReader();
       reader.onload = () => {
-        // reader.result จะเป็น Data URL เช่น data:image/png;base64,...
         const dataUrl = reader.result;
-        // แยกส่วน header (meta) กับข้อมูล base64 จริง
         const [meta, base64] = dataUrl.split(',');
-        // ดึง MIME type จาก meta
         const mime = meta.match(/data:(.*?);/)[1];
 
-        // สร้าง payload JSON รวมข้อมูลทั้งหมด
+        // สร้าง payload
         const payload = {
-          shopId: SHOP_ID,       // รหัสร้านเพื่อแยกข้อมูล
-          name: nameInput.value.trim(), // ชื่อพนักงาน
-          time: '17:00',         // เวลาที่กำหนด (ปรับเปลี่ยนได้)
-          lat: lat,              // พิกัดละติจูด
-          lng: lng,              // พิกัดลองจิจูด
-          type: 'checkout',      // ประเภทการส่ง (checkout)
-          imageName: file.name,  // ชื่อไฟล์รูป
-          imageMime: mime,       // ชนิดไฟล์รูป
-          imageBase64: base64    // ข้อมูลรูปแบบ Base64
+          shopId: SHOP_ID,
+          name:   nameInput.value.trim(),
+          time,
+          lat,
+          lng,
+          type:       'checkout',
+          imageName:  file.name,
+          imageMime:  mime,
+          imageBase64:base64
         };
 
-        // ส่งข้อมูลไปยัง Hookdeck ด้วย fetch
-        fetch(WEBHOOK_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload) // แปลง payload เป็น JSON string
+        // ต่อ query string แล้วส่ง
+        const url = `${WEBHOOK_URL}?shopId=${encodeURIComponent(SHOP_ID)}`;
+        fetch(url, {
+          method:  'POST',
+          headers: {'Content-Type':'application/json'},
+          body:    JSON.stringify(payload)
         })
-        .then(_ => {
-          // ถ้าสำเร็จ ให้ redirect ไปหน้า success พร้อมเวลาปัจจุบัน
-          const now = new Date().toLocaleTimeString();
-          window.location = `checkoutSuccess.html?time=${encodeURIComponent(now)}`;
+        .then(() => {
+          // redirect ไปหน้า success พร้อมเวลาปัจจุบัน
+          window.location = `checkoutSuccess.html?time=${encodeURIComponent(time)}`;
         })
-        .catch(_ => {
-          // ถ้าเกิดข้อผิดพลาด ก็ redirect เหมือนกัน
-          const now = new Date().toLocaleTimeString();
-          window.location = `checkoutSuccess.html?time=${encodeURIComponent(now)}`;
+        .catch(() => {
+          window.location = `checkoutSuccess.html?time=${encodeURIComponent(time)}`;
         });
       };
-      // เริ่มอ่านไฟล์รูปเป็น Data URL
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(file); // เริ่มอ่านไฟล์รูป
     }
   </script>
 </body>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="th"> <!-- ระบุว่าเป็น HTML5 และใช้ภาษาไทย -->
+<head>
+  <meta charset="UTF-8"> <!-- กำหนดการเข้ารหัสเป็น UTF-8 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- รองรับมือถือ -->
+  <title>เช็คอินสำเร็จ – WorkPing Time</title> <!-- ชื่อหน้าในแท็บ -->
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; } /* รีเซ็ต margin/padding */
+    html, body {
+      width: 100%; height: 100%;                        /* เต็มหน้าจอ */
+      font-family: 'Sarabun', sans-serif;                /* ฟอนต์ Sarabun */
+      background: url('background.png') center/cover no-repeat; /* พื้นหลัง */
+      color: #fff; text-align: center;                   /* ข้อความสีขาว จัดกึ่งกลาง */
+    }
+    header {
+      display: flex; justify-content: center; align-items: center; padding: 20px 0;
+    }
+    header img {
+      max-width: 160px; height: auto;                    /* ขนาดโลโก้ */
+    }
+    .success-box {
+      width: 90%; max-width: 400px; margin: 30px auto; padding: 20px;
+      border: 3px solid #fff; border-radius: 8px;        /* กรอบข้อความ */
+    }
+    .success-box h2 { font-size: 24px; margin-bottom: 10px; }
+    .success-box p  { font-size: 20px; margin: 8px 0; }
+    .btn-back {
+      display: block; width: 90%; max-width: 300px; margin: 20px auto;
+      padding: 15px 0; border: 3px solid #fff; border-radius: 8px;
+      font-size: 18px; font-weight: bold; color: #fff;
+      background: transparent; text-decoration: none; transition: background .3s;
+    }
+    .btn-back:hover { background: rgba(255,255,255,0.1); }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="Logo WorkPingTime.png" alt="WorkPing Time">  <!-- โลโก้เพียงภาพเดียว -->
+  </header>
+
+  <div class="success-box">
+    <h2>คุณลงชื่อเข้า​งานเรียบร้อยแล้ว</h2>
+    <hr style="border:1px solid #fff; margin:10px 0;">
+
+    <!-- แสดงเวลาปัจจุบันเท่านั้น -->
+    <p>เวลาเช็คอิน: <span id="time-display">--:--</span></p>
+  </div>
+
+  <a href="index.html" class="btn-back">กลับหน้าหลัก</a>
+
+  <script>
+    // 1) สร้างตัวแปร now เก็บเวลาปัจจุบันในรูป HH:MM:SS
+    const now = new Date().toLocaleTimeString();
+    // 2) ใส่เวลาไปยัง <span id="time-display">
+    document.getElementById('time-display').innerText = now;
+  </script>
+</body>
+</html>

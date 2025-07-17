@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="th"> <!-- ระบุว่าเป็น HTML5 และใช้ภาษาไทย -->
+<head>
+  <meta charset="UTF-8"/> <!-- กำหนดการเข้ารหัสอักขระเป็น UTF-8 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1"/> <!-- รองรับการแสดงผลบนมือถือ -->
+  <title>เช็คอิน – WorkPing Time</title> <!-- ชื่อหน้าเว็บที่จะแสดงในแท็บเบราว์เซาว์เซอร์ -->
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0 } /* รีเซ็ตค่า margin และ padding ให้เป็น 0 */
+    html, body {
+      width: 100%; height: 100%; /* ให้ body และ html ครอบคลุมเต็มหน้าจอ */
+      font-family: 'Sarabun', sans-serif; /* ตั้งฟอนต์ Sarabun */
+      background: url('background.png') center/cover no-repeat; /* ใส่ภาพพื้นหลังแบบครอบคลุม */
+      color: #fff; text-align: center; /* ข้อความสีขาว จัดกึ่งกลาง */
+    }
+    header {
+      display: flex; justify-content: center; align-items: center; padding: 20px 0; /* แถบหัวเว็บจัดกลางด้วย Flexbox */
+    }
+    header img { max-width: 160px; height: auto; } /* ขนาดภาพโลโก้ไม่เกิน 160px */
+    .form-container {
+      width: 90%; max-width: 400px; margin: 20px auto; text-align: left; /* กรอบฟอร์มกึ่งกลาง กำหนดความกว้าง */
+    }
+    .form-container label {
+      display: block; font-size: 18px; margin: 10px 0 5px; /* ป้ายกำกับปรับขนาดและระยะห่าง */
+    }
+    .form-container input[type="text"],
+    .form-container input[type="file"] {
+      width: 100%; padding: 12px; margin-bottom: 15px; /* ช่องกรอกข้อมูลเต็มความกว้าง มี padding */
+      border: 3px solid #fff; border-radius: 6px; /* ขอบสีขาว โค้งมน */
+      background: rgba(255,255,255,0.1); color: #fff; font-size: 16px; /* พื้นหลังโปร่ง ข้อความสีขาว */
+    }
+    .form-container button {
+      width: 100%; padding: 15px; border: none; border-radius: 8px; /* ปุ่มเต็มความกว้าง ขอบมน */
+      background: #ff8c00; color: #fff; font-size: 20px; font-weight: bold; /* ปรับสีและขนาดข้อความ */
+      cursor: pointer; transition: opacity .2s; /* เปลี่ยนความทึบเมื่อ hover */
+    }
+    .form-container button:hover { opacity: .8; } /* ลดความทึบเมื่อชี้ปุ่ม */
+    #position { font-size: 16px; margin-bottom: 20px } /* ขนาดข้อความ GPS และระยะห่าง */
+  </style>
+</head>
+<body>
+  <header>
+    <img src="Logo WorkPingTime.png" alt="WorkPing Time Logo"> <!-- โลโก้ WorkPing Time -->
+  </header>
+
+  <div class="form-container">
+    <label for="name">กรอกชื่อ :</label> <!-- ป้ายกรอกชื่อ -->
+    <input type="text" id="name" placeholder="ชื่อของคุณ" required> <!-- ช่องกรอกชื่อ (จำเป็นต้องกรอก) -->
+
+    <label for="photo">ถ่ายรูปเข้า​งาน :</label> <!-- ป้ายถ่ายรูป -->
+    <input type="file" id="photo" accept="image/*" capture="environment" required> <!-- อัพโหลดรูป กล้องหลัง จำเป็นต้องมี -->
+
+    <p id="position">ตำแหน่ง: --, --</p> <!-- แสดงตำแหน่ง GPS -->
+    <button onclick="submitCheckin()">เข้า​งาน</button> <!-- ปุ่มส่งข้อมูลเช็คอิน -->
+  </div>
+
+  <script>
+    // กำหนดรหัสร้านค้า (shopId) ให้เปลี่ยนตามแต่ละร้าน
+    const SHOP_ID = 'REPLACE_WITH_SHOP_ID';
+    // URL ของ Hookdeck/Webhook endpoint
+    const WEBHOOK_URL = 'https://hkdk.events/6t72sw80kbjrm2';
+
+    // ขอสิทธิ์เข้าถึง GPS ของผู้ใช้
+    navigator.geolocation.getCurrentPosition(pos => {
+      const lat = pos.coords.latitude.toFixed(6); // เก็บค่า Latitude ทศนิยม 6 ตำแหน่ง
+      const lng = pos.coords.longitude.toFixed(6); // เก็บค่า Longitude ทศนิยม 6 ตำแหน่ง
+      // แสดงตำแหน่งบนหน้าจอ
+      document.getElementById('position').innerText = `ตำแหน่ง: ${lat}, ${lng}`;
+    });
+
+    // ฟังก์ชันส่งข้อมูลเช็คอินเมื่อกดปุ่ม
+    function submitCheckin() {
+      const nameInput = document.getElementById('name'); // ช่องชื่อ
+      const file = document.getElementById('photo').files[0]; // ไฟล์รูป
+      const positionText = document.getElementById('position').innerText; // ข้อความตำแหน่ง
+      // แยกข้อความตำแหน่งเป็น lat, lng
+      const [ , latRaw, lngRaw ] = positionText.split(' ');
+      const lat = latRaw.replace(',', ''); // ลบเครื่องหมายจุลภาค
+      const lng = lngRaw;
+      const time = '08:00'; // ตั้งเวลาคงที่สำหรับเช็คอิน
+
+      // ตรวจสอบให้ครบก่อนส่ง
+      if (!nameInput.value.trim() || !file) {
+        alert('กรุณากรอกชื่อ และถ่ายรูปให้ครบถ้วน');
+        return; // หยุดการทำงานถ้ายังไม่ครบ
+      }
+
+      // อ่านไฟล์รูปเป็น base64
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result; // ตัวอย่าง data:image/png;base64,...
+        const [meta, base64] = dataUrl.split(','); // แยกส่วน header และข้อมูล
+        const mime = meta.match(/data:(.*?);/)[1]; // ดึง mimetype ของรูป
+
+        // สร้าง payload JSON รวมข้อมูลทั้งหมด
+        const payload = {
+          shopId: SHOP_ID,      // รหัสร้าน
+          name: nameInput.value.trim(),
+          time: time,
+          lat: lat,
+          lng: lng,
+          type: 'checkin',       // ประเภทการส่ง
+          imageName: file.name,  // ชื่อไฟล์รูป
+          imageMime: mime,       // mimetype ของรูป
+          imageBase64: base64    // ข้อมูลรูปแบบ base64
+        };
+
+        // ส่งข้อมูลไปยัง Webhook ด้วย fetch
+        fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+        .then(_ => {
+          // ส่งสำเร็จให้ไปหน้าสำเร็จ
+          window.location = `checkinSuccess.html?time=${encodeURIComponent(time)}`;
+        })
+        .catch(_ => {
+          // กรณีเกิดข้อผิดพลาด ให้ไปหน้าสำเร็จเหมือนกัน
+          window.location = `checkinSuccess.html?time=${encodeURIComponent(time)}`;
+        });
+      };
+      reader.readAsDataURL(file); // เริ่มอ่านไฟล์เป็น Data URL
+    }
+  </script>
+</body>
+</html>
